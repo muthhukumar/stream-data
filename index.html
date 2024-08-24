@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Muthukumar's Html template</title>
+    <meta name="description" content="Muthukumar's Html template" />
+    <meta name="color-scheme" content="dark light" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#dedede"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#0e1111"
+    />
+
+    <link
+      rel="preload"
+      href="/fonts/DMSans.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+
+    <link rel="stylesheet" href="/styles/index.css" />
+    <link rel="stylesheet" href="/styles/reset.css" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/favicon/site.webmanifest" />
+  </head>
+  <body>
+    <main class="container">
+      <h1 class="title">Quotes</h1>
+      <ol class="quotes" id="quotes"></ol>
+    </main>
+
+    <script defer>
+      var done = false;
+
+      function streamQuotes(parent) {
+        const eventSource = new EventSource(window.localStorage.getItem("url"));
+
+        eventSource.onmessage = function (event) {
+          const quote = event.data;
+
+          const li = document.createElement("li");
+
+          li.textContent = quote;
+
+          li.scrollIntoView({ behavior: "smooth" });
+
+          parent.appendChild(li);
+        };
+
+        eventSource.addEventListener("end", () => {
+          console.log("stream finished");
+          done = true;
+          eventSource.close();
+        });
+
+        eventSource.onerror = function (error) {
+          done = true;
+          eventSource.close();
+          console.log("Error:", error);
+        };
+
+        eventSource.onopen = function () {
+          console.log("Connection established");
+        };
+      }
+
+      const parent = document.getElementById("quotes");
+
+      if (!parent) {
+        throw new Error("Parent element is not found");
+      }
+
+      if (!done) {
+        streamQuotes(parent);
+      }
+    </script>
+  </body>
+</html>
